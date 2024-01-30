@@ -10,8 +10,8 @@ pub struct Config {
 
 impl Config {
     pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
-        args.next();
-
+        //args in the parameters of this fn is an iterator that iterates over a collection of Strings
+        args.next(); //ignore the first element as its the executable binary
         let query = match args.next() {
             Some(arg) => arg,
             None => return Err("didn't get a query string"),
@@ -22,7 +22,9 @@ impl Config {
             None => return Err("didn't get a filepath"),
         };
 
-        let ignore_case = env::var("IGNORE_CASE").is_ok();
+        let ignore_case = env::var("IGNORE_CASE").is_ok(); /*IGNORE_CASE=1 cargo run -- query filepath
+        //run that command to set the env variable IGNORE_CASE to 1, which will mean that is_ok() returns true
+        */
 
         Ok(Config {
             query, 
@@ -35,7 +37,7 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.file_path)?;
         
-    let results = if config.ignore_case {
+    let results = if config.ignore_case { //if ignore_case is true, run insensitive search
         search_case_insensitive(&config.query, &contents)
     } else {
         search_case_sensitive(&config.query, &contents)
@@ -53,9 +55,9 @@ pub fn search_case_sensitive<'a>(
     contents: &'a str
 ) -> Vec<&'a str> {
     contents
-        .lines()
-        .filter(|line| line.contains(&query))
-        .collect()
+        .lines() //turns a string into an iterable with items of string separated by newline
+        .filter(|line| line.contains(&query)) //keep only those elements that contain the query
+        .collect() //consume the iterator and collect it into a Vec
 }
 
 pub fn search_case_insensitive<'a>(
