@@ -12,15 +12,19 @@ fn main() {
     println!("searching for {}", config.query);
     println!("in file {}", config.file_path);
 
-    run(config);
+    if let Err(e) = run(config) {
+        println!("application error: {e}");
+        process::exit(1);
+    }
 
 }
 
-run(config: Config) {
-    let contents = fs::read_to_string(config.file_path)
-        .expect("should have been able to read the file");
+run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.file_path)?;
         
     println!("with text:\n{contents}");
+
+    Ok(())
 }
 
 struct Config {
